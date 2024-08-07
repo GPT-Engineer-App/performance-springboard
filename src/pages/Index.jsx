@@ -3,10 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Cat, Heart, Info, Paw, Star, ArrowRight, ArrowLeft } from "lucide-react";
+import { Cat, Heart, Info, Paw, Star, ArrowRight, ArrowLeft, Moon, Sun } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useTheme } from "next-themes";
 
 const catImages = [
   "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/1200px-Cat03.jpg",
@@ -21,6 +22,7 @@ const Index = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     let timer;
@@ -61,8 +63,16 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-100 to-pink-100">
-      <header className="bg-purple-600 text-white py-16 px-8 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 transition-colors duration-500">
+      <header className="bg-purple-600 dark:bg-purple-800 text-white py-16 px-8 relative overflow-hidden">
+        <Button
+          variant="outline"
+          size="icon"
+          className="absolute top-4 right-4 z-10"
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        >
+          {theme === "dark" ? <Sun className="h-[1.2rem] w-[1.2rem]" /> : <Moon className="h-[1.2rem] w-[1.2rem]" />}
+        </Button>
         <div className="absolute inset-0 opacity-20">
           {[...Array(20)].map((_, index) => (
             <motion.div
@@ -101,7 +111,12 @@ const Index = () => {
       </header>
       
       <main className="max-w-6xl mx-auto py-12 px-8">
-        <div className="relative mb-12">
+        <motion.div
+          className="relative mb-12"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <AnimatePresence mode="wait">
             <motion.img 
               key={currentImageIndex}
@@ -114,16 +129,24 @@ const Index = () => {
               transition={{ duration: 0.5 }}
             />
           </AnimatePresence>
-          <div className="absolute top-1/2 left-4 transform -translate-y-1/2">
+          <motion.div 
+            className="absolute top-1/2 left-4 transform -translate-y-1/2"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
             <Button variant="outline" size="icon" onClick={handlePrevImage}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-          </div>
-          <div className="absolute top-1/2 right-4 transform -translate-y-1/2">
+          </motion.div>
+          <motion.div 
+            className="absolute top-1/2 right-4 transform -translate-y-1/2"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
             <Button variant="outline" size="icon" onClick={handleNextImage}>
               <ArrowRight className="h-4 w-4" />
             </Button>
-          </div>
+          </motion.div>
           <Progress value={progress} className="w-full mt-4" />
           <div className="mt-4 flex justify-center">
             <TooltipProvider>
@@ -145,11 +168,16 @@ const Index = () => {
           </div>
         </div>
         
-        <Tabs defaultValue="facts" className="mb-12">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="facts">Feline Facts</TabsTrigger>
-            <TabsTrigger value="breeds">Popular Breeds</TabsTrigger>
-          </TabsList>
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <Tabs defaultValue="facts" className="mb-12">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="facts">Feline Facts</TabsTrigger>
+              <TabsTrigger value="breeds">Popular Breeds</TabsTrigger>
+            </TabsList>
           <TabsContent value="facts">
             <Card>
               <CardHeader>
@@ -213,8 +241,14 @@ const Index = () => {
             </Card>
           </TabsContent>
         </Tabs>
+        </motion.div>
         
-        <div className="text-center mt-12">
+        <motion.div 
+          className="text-center mt-12"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
           <motion.div
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -240,7 +274,7 @@ const Index = () => {
         </div>
       </main>
       
-      <footer className="bg-purple-600 text-white py-8 mt-12">
+      <footer className="bg-purple-600 dark:bg-purple-800 text-white py-8 mt-12">
         <div className="max-w-6xl mx-auto text-center">
           <p>&copy; 2023 Purrfect Companions. All rights reserved.</p>
           <p className="mt-2">Made with <Heart className="inline-block text-pink-300" size={16} /> by cat enthusiasts</p>
