@@ -3,35 +3,62 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Cat, Heart, Info, Paw, Star } from "lucide-react";
+import { Cat, Heart, Info, Paw, Star, ArrowRight, ArrowLeft } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const catImages = [
   "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/1200px-Cat03.jpg",
   "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Cat_November_2010-1a.jpg/1200px-Cat_November_2010-1a.jpg",
   "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Kittyply_edit1.jpg/1200px-Kittyply_edit1.jpg",
+  "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/RedCat_8727.jpg/1200px-RedCat_8727.jpg",
+  "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Gustav_chocolate.jpg/1200px-Gustav_chocolate.jpg",
 ];
 
 const Index = () => {
   const [likes, setLikes] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [isAutoPlay, setIsAutoPlay] = useState(true);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % catImages.length);
-    }, 5000);
-
+    let timer;
+    if (isAutoPlay) {
+      timer = setInterval(() => {
+        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % catImages.length);
+        setProgress(0);
+      }, 5000);
+    }
     return () => clearInterval(timer);
-  }, []);
+  }, [isAutoPlay]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((prevProgress) => (prevProgress + 1) % 101);
-    }, 50);
-
+    let interval;
+    if (isAutoPlay) {
+      interval = setInterval(() => {
+        setProgress((prevProgress) => {
+          if (prevProgress >= 100) {
+            return 0;
+          }
+          return prevProgress + 1;
+        });
+      }, 50);
+    }
     return () => clearInterval(interval);
-  }, []);
+  }, [isAutoPlay]);
+
+  const handlePrevImage = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + catImages.length) % catImages.length);
+    setProgress(0);
+    setIsAutoPlay(false);
+  };
+
+  const handleNextImage = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % catImages.length);
+    setProgress(0);
+    setIsAutoPlay(false);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-100 to-pink-100">
@@ -87,7 +114,35 @@ const Index = () => {
               transition={{ duration: 0.5 }}
             />
           </AnimatePresence>
+          <div className="absolute top-1/2 left-4 transform -translate-y-1/2">
+            <Button variant="outline" size="icon" onClick={handlePrevImage}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="absolute top-1/2 right-4 transform -translate-y-1/2">
+            <Button variant="outline" size="icon" onClick={handleNextImage}>
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
           <Progress value={progress} className="w-full mt-4" />
+          <div className="mt-4 flex justify-center">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsAutoPlay(!isAutoPlay)}
+                  >
+                    {isAutoPlay ? "Pause" : "Play"} Slideshow
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{isAutoPlay ? "Pause" : "Resume"} automatic slideshow</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
         
         <Tabs defaultValue="facts" className="mb-12">
@@ -159,7 +214,7 @@ const Index = () => {
           </TabsContent>
         </Tabs>
         
-        <div className="text-center">
+        <div className="text-center mt-12">
           <motion.div
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -171,17 +226,26 @@ const Index = () => {
               <Heart className="mr-2 h-5 w-5" /> Like Cats
             </Button>
           </motion.div>
-          <motion.p 
-            className="mt-4 text-2xl font-bold text-purple-700"
+          <motion.div 
+            className="mt-4"
             key={likes}
             initial={{ scale: 1.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 500, damping: 15 }}
           >
-            {likes} cat lovers have clicked this button!
-          </motion.p>
+            <Badge variant="secondary" className="text-2xl font-bold px-4 py-2">
+              {likes} cat lovers
+            </Badge>
+          </motion.div>
         </div>
       </main>
+      
+      <footer className="bg-purple-600 text-white py-8 mt-12">
+        <div className="max-w-6xl mx-auto text-center">
+          <p>&copy; 2023 Purrfect Companions. All rights reserved.</p>
+          <p className="mt-2">Made with <Heart className="inline-block text-pink-300" size={16} /> by cat enthusiasts</p>
+        </div>
+      </footer>
     </div>
   );
 };
